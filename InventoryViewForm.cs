@@ -52,26 +52,6 @@ namespace InventoryView
 
         private void InventoryViewForm_Load(object sender, EventArgs e) => BindData();
 
-        /*private void BindData()
-        {
-            chkCharacters.Items.Clear();
-            tv.Nodes.Clear();
-            List<string> list = InventoryView.characterData.Select<CharacterData, string>((Func<CharacterData, string>)(tbl => tbl.name)).Distinct<string>().ToList<string>();
-            list.Sort();
-            foreach (string str in list)
-            {
-                string character = str;
-                chkCharacters.Items.Add((object)character, true);
-                TreeNode treeNode1 = tv.Nodes.Add(character);
-                foreach (CharacterData characterData in InventoryView.characterData.Where<CharacterData>((Func<CharacterData, bool>)(tbl => tbl.name == character)))
-                {
-                    TreeNode treeNode2 = treeNode1.Nodes.Add(characterData.source);
-                    treeNode2.ToolTipText = treeNode2.FullPath;
-                    PopulateTree(treeNode2, characterData.items);
-                }
-            }
-        }*/
-
         private void BindData()
         {
             chkCharacters.Items.Clear();
@@ -184,7 +164,6 @@ namespace InventoryView
 
         private void btnWiki_Click(object sender, EventArgs e)
         {                
-            //string target = string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""));
             if (tv.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select an item to lookup.");
