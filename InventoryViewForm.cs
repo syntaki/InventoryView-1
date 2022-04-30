@@ -46,6 +46,8 @@ namespace InventoryView
         private ToolStripMenuItem copySelectedToolStripMenuItem;
         private ListBox listBox = new ListBox();
 
+        public bool UseShellExecute { get; private set; }
+
         public InventoryViewForm() => InitializeComponent();
 
         private void InventoryViewForm_Load(object sender, EventArgs e) => BindData();
@@ -181,14 +183,14 @@ namespace InventoryView
         private void btnCollapse_Click(object sender, EventArgs e) => tv.CollapseAll();
 
         private void btnWiki_Click(object sender, EventArgs e)
-        {
+        {                
+            //string target = string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""));
             if (tv.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                //Process.Start(string.Format("https://drservice.info/wiki.ashx?tap={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
-            Process.Start(string.Format("https://elanthipedia.play.net/index.php?search={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
+                System.Diagnostics.Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
         }
 
         private void Wiki_Click(object sender, EventArgs e)
@@ -198,8 +200,17 @@ namespace InventoryView
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                //Process.Start(string.Format("https://drservice.info/wiki.ashx?tap={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
-                Process.Start(string.Format("https://elanthipedia.play.net/index.php?search={0}", (object)Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", "")));
+                System.Diagnostics.Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
+        }
+
+        private void Listbox_Wiki_Click(object sender, EventArgs e)
+        {
+            if (lb1.SelectedItem == null)
+            {
+                int num = (int)MessageBox.Show("Select an item to lookup.");
+            }
+            else
+                System.Diagnostics.Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace((string)lb1.SelectedItem, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -338,16 +349,6 @@ namespace InventoryView
                 }
                 Clipboard.SetText(buffer.ToString());
             }
-        }
-
-        private void Listbox_Wiki_Click(object sender, EventArgs e)
-        {
-            if (lb1.SelectedItem == null)
-            {
-                int num = (int)MessageBox.Show("Select an item to lookup.");
-            }
-            else
-                Process.Start(string.Format("https://elanthipedia.play.net/index.php?search={0}", (object)Regex.Replace((string)lb1.SelectedItem, @"\(\d+\)\s|\s\(closed\)", ""))); ;
         }
 
         private void Lb1_MouseDown(object sender, MouseEventArgs e)
