@@ -12,7 +12,7 @@
 * Added search count
 * Added right click options for second window
 * Added matches for when using vault book and vault is empty
-* Made change to handle if someone is using Links, works fine now
+* Made change to handle if someone is using ShowLinks, works fine now
 
 
 This plugin will record the items that each of your characters has in their inventory, vault (if you have a vault book), and home (if you have one) and make them searchable in a form.
