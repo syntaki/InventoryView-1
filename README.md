@@ -12,6 +12,7 @@
 * Added search count
 * Added right click options for second window
 * Added matches for when using vault book and vault is empty
+* Fixed browser when using wiki lookup
 * Made change to handle if someone is using ShowLinks, works fine now
 
 
