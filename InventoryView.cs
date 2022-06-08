@@ -86,7 +86,7 @@ namespace InventoryView
                 } //end if Start
                 else if (ScanMode == "Inventory")
                 {
-                    if (text.StartsWith("[Use INVENTORY HELP"))
+                    if (text.StartsWith("[Use"))
                     {
                         // Skip
                     }
