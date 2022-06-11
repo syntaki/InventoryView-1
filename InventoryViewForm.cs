@@ -65,6 +65,7 @@ namespace InventoryView
             {
                 chkCharacters.Items.Add(character, true);
                 TreeNode charNode = tv.Nodes.Add(character);
+
                 foreach (var source in Class1.characterData.Where(tbl => tbl.name == character))
                 {
                     TreeNode sourceNode = charNode.Nodes.Add(source.source);
@@ -169,7 +170,7 @@ namespace InventoryView
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                System.Diagnostics.Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
         }
 
         private void Wiki_Click(object sender, EventArgs e)
@@ -179,7 +180,7 @@ namespace InventoryView
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                System.Diagnostics.Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
         }
 
         private void Listbox_Wiki_Click(object sender, EventArgs e)
@@ -189,7 +190,7 @@ namespace InventoryView
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                System.Diagnostics.Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace((string)lb1.SelectedItem, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace((string)lb1.SelectedItem, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -668,7 +669,6 @@ namespace InventoryView
             this.lb1.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.lb1.Size = new System.Drawing.Size(492, 407);
             this.lb1.TabIndex = 10;
-            //this.lb1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Lb1_MouseDown);
             this.lb1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Lb1_MouseUp);
             // 
             // listBox_Menu
@@ -679,33 +679,33 @@ namespace InventoryView
             this.copyAllToolStripMenuItem,
             this.copySelectedToolStripMenuItem});
             this.listBox_Menu.Name = "listBox_Menu";
-            this.listBox_Menu.Size = new System.Drawing.Size(181, 114);
+            this.listBox_Menu.Size = new System.Drawing.Size(167, 92);
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.copyToolStripMenuItem.Text = "Copy Selected";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.ListBox_Copy_Click);
             // 
             // wikiToolStripMenuItem
             // 
             this.wikiToolStripMenuItem.Name = "wikiToolStripMenuItem";
-            this.wikiToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.wikiToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.wikiToolStripMenuItem.Text = "Wiki Selected";
             this.wikiToolStripMenuItem.Click += new System.EventHandler(this.Listbox_Wiki_Click);
             // 
             // copyAllToolStripMenuItem
             // 
             this.copyAllToolStripMenuItem.Name = "copyAllToolStripMenuItem";
-            this.copyAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copyAllToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.copyAllToolStripMenuItem.Text = "Copy All";
             this.copyAllToolStripMenuItem.Click += new System.EventHandler(this.ListBox_Copy_All_Click);
             // 
             // copySelectedToolStripMenuItem
             // 
             this.copySelectedToolStripMenuItem.Name = "copySelectedToolStripMenuItem";
-            this.copySelectedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copySelectedToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.copySelectedToolStripMenuItem.Text = "Copy All Selected";
             this.copySelectedToolStripMenuItem.Click += new System.EventHandler(this.ListBox_Copy_All_Selected_Click);
             // 
