@@ -40,7 +40,8 @@ namespace InventoryView
 
         private bool Debug = false;
         private string LastText = "";
-		  private string Place;
+	    private string Place;
+        private string Deedtype;
 
         public void Initialize(IHost host)
         {
@@ -324,17 +325,16 @@ namespace InventoryView
                         if (text.StartsWith("Roundtime:"))
                         {
                             Match match = Regex.Match(trimtext, "^Roundtime:\\s{1,3}(\\d{1,3})\\s{1,3}secs?\\.$");
-                            Class1._host.EchoText(string.Format("Pausing {0} seconds for RT.", (object)int.Parse(match.Groups[1].Value)));
+                            _host.EchoText(string.Format("Pausing {0} seconds for RT.", (object)int.Parse(match.Groups[1].Value)));
                             Thread.Sleep(int.Parse(match.Groups[1].Value) * 1000);
                             this.ScanMode = "DeedStart";
-                            Class1._host.SendText("get my deed register");
+                            _host.SendText("get my deed register");
                         }
                         else
                         {
-
                             _host.EchoText("Skipping Family Vault.");
                             ScanMode = "DeedStart";
-                            _host.SendText("get my deed registe");
+                            _host.SendText("get my deed register");
                         }
                     }
                 } //end of VaultFamilyStart
@@ -420,7 +420,7 @@ namespace InventoryView
                         _host.SendText("read my deed register");
                     }
 
-                    else if (trimtext == "Page -- Deed") // This text appears at the beginning of the deed register list.
+                    else if (text.StartsWith("   Page -- [Type]       Deed")) // This text appears at the beginning of the deed register list.
                     {
                         ScanMode = "Deed";
                         currentData = new CharacterData() { name = _host.get_Variable("charactername"), source = "Deed" };
@@ -451,7 +451,7 @@ namespace InventoryView
                     }
                     else
                     {
-                        string tap = Regex.Replace(trimtext, @"^(\d+\s--\s)(an|a|some|several)\s", "");
+                        string tap = Regex.Replace(trimtext, @"\s+(an|a|some|several)\s", " ");
 
                         if (tap[tap.Length - 1] == '.')
                             tap = tap.TrimEnd('.');
