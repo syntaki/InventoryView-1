@@ -41,7 +41,6 @@ namespace InventoryView
         private bool Debug = false;
         private string LastText = "";
 	    private string Place;
-        private string Deedtype;
 
         public void Initialize(IHost host)
         {
@@ -451,7 +450,7 @@ namespace InventoryView
                     }
                     else
                     {
-                        string tap = Regex.Replace(trimtext, @"\s+(an|a|some|several)\s", " ");
+                      string tap = Regex.Replace(trimtext, @"\s+a deed for\s", " ");
 
                         if (tap[tap.Length - 1] == '.')
                             tap = tap.TrimEnd('.');
