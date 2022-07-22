@@ -162,10 +162,13 @@ namespace InventoryView
 						  
                     else if (trimtext == "The script that the vault book is written in is unfamiliar to you.  You are unable to read it." || trimtext == "The vault book is filled with blank pages pre-printed with branch office letterhead.  An advertisement touting the services of Rundmolen Bros. Storage Co. is pasted on the inside cover."  || trimtext == "You currently do not have a vault rented.")
                     {
-                            ScanMode = "StandardStart";
-                            _host.EchoText("Skipping Book Vault.");
+                        ScanMode = "StandardStart";
+                        _host.EchoText("Skipping Book Vault.");
+                        if (Place == "")
+                            _host.SendText("stow my vault book");
+                        else
                             _host.SendText("put my vault book in my " + Place);
-                            _host.SendText("vault standard");
+                        _host.SendText("vault standard");
                     }
                 } //end of VaultStart
                 else if (ScanMode == "Vault")
@@ -174,7 +177,10 @@ namespace InventoryView
                     if (text.StartsWith("The last note in your book indicates that your vault contains"))
                     {
                         ScanMode = "FamilyStart";
-                        _host.SendText("put my vault book in my " + Place);
+                        if (Place == "")
+                            _host.SendText("stow my vault book");
+                        else
+                            _host.SendText("put my vault book in my " + Place);
                         _host.SendText("vault family");
                     }
                     else
@@ -435,7 +441,10 @@ namespace InventoryView
                     }
                     else if (Regex.Match(trimtext, "^You haven't stored any deeds in this register\\.  It can hold \\d+ deeds in total\\.").Success || trimtext == "You shouldn't do that to somebody eles's deed book." || trimtext == "You shouldn't read somebody else's deed book.")
                     {
-                        _host.SendText("put my deed register in my " + Place);
+                        if (Place == "")
+                            _host.SendText("stow my deed register");
+                        else
+                            _host.SendText("put my deed register in my " + Place);
                         ScanMode = "HomeStart";
                         _host.SendText("home recall");
                     }
@@ -444,13 +453,17 @@ namespace InventoryView
                 {
                     if (trimtext.StartsWith("Currently stored"))
                     {
-                        _host.SendText("put my deed register in my " + Place);
+                        if (Place == "")
+                            _host.SendText("stow my deed register");
+                        else
+                            _host.SendText("put my deed register in my " + Place);
                         ScanMode = "HomeStart";
                         _host.SendText("home recall");
                     }
                     else
                     {
                         string tap = trimtext;
+
                         if (tap[tap.Length - 1] == '.')
                             tap = tap.TrimEnd('.');
 
@@ -567,7 +580,10 @@ namespace InventoryView
                     {
                         ScanMode = null;
                         _host.EchoText("Scan Complete.");
-                        _host.SendText("put my storage book in my " + Place);
+                        if (Place == "")
+                            _host.SendText("stow my storage book");
+                        else
+                            _host.SendText("put my storage book in my " + Place);
                         _host.SendText("#parse InventoryView scan complete");
                         SaveSettings();
                     }
