@@ -462,7 +462,7 @@ namespace InventoryView
                     }
                     else
                     {
-                        string tap = trimtext;
+                      string tap = Regex.Replace(trimtext, @"a deed for\s", " ");
 
                         if (tap[tap.Length - 1] == '.')
                             tap = tap.TrimEnd('.');
