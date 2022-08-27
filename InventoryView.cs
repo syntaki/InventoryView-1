@@ -109,7 +109,7 @@ namespace InventoryView
                         // remove the - from the beginning if it exists.
                         if (tap.StartsWith("-")) tap = tap.Remove(0, 1);
                         if (tap[tap.Length - 1] == '.') tap = tap.TrimEnd('.');
-                        tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
+                        tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
 
                         // The logic below builds a tree of inventory items.
                         if (newlevel == 1) // If the item is in the first level, add to the root item list
@@ -194,7 +194,7 @@ namespace InventoryView
                         string tap = trimtext;
                         if (tap.StartsWith("-")) tap = tap.Remove(0, 1);
 						if (tap[tap.Length - 1] == '.')  tap = tap.TrimEnd('.');
-                        tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
+                        tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
                         if (newlevel == 1)
                         {
                             lastItem = currentData.AddItem(new ItemData() { tap = tap, storage = true });
@@ -277,8 +277,8 @@ namespace InventoryView
                         if (tap.StartsWith("-")) tap = tap.Remove(0, 1);
 								if (tap.StartsWith(" ")) tap = tap.Remove(0, 1);
 								if (tap[tap.Length - 1] == '.') tap = tap.TrimEnd('.');
-								tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
-								tap = Regex.Replace(tap, @"\)\s{1,2}(an|a|some|several)\s", ") ");
+								tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
+								tap = Regex.Replace(tap, @"\)\s{1,2}(an?|some|several)\s", ") ");
                         if (newlevel == 1)
                         {
                             lastItem = currentData.AddItem(new ItemData() { tap = tap, storage = true });
@@ -377,9 +377,9 @@ namespace InventoryView
                         if (tap.StartsWith("-")) tap = tap.Remove(0, 1);
 								if (tap.StartsWith(" ")) tap = tap.Remove(0, 1);    
 								if (tap[tap.Length - 1] == '.') tap = tap.TrimEnd('.');
-								tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
-								tap = Regex.Replace(tap, @"\)\s{2}(an|a|some|several)\s", ") ");
-								tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
+								tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
+								tap = Regex.Replace(tap, @"\)\s{2}(an?|some|several)\s", ") ");
+								tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
                         if (newlevel == 1)
                         {
                             lastItem = currentData.AddItem(new ItemData() { tap = tap, storage = true });
@@ -462,7 +462,7 @@ namespace InventoryView
                     }
                     else
                     {
-                      string tap = Regex.Replace(trimtext, @"a deed for\s", " ");
+                      string tap = Regex.Replace(trimtext, @"a deed for\s(an?|some|several)", " ");
 
                         if (tap[tap.Length - 1] == '.')
                             tap = tap.TrimEnd('.');
@@ -536,13 +536,13 @@ namespace InventoryView
                         string tap = trimtext.Replace("Attached: ", "");
                         if (tap[tap.Length - 1] == '.')
                             tap = tap.TrimEnd('.');
-                        tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
+                        tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
                         lastItem = (lastItem.parent != null ? lastItem.parent : lastItem ).AddItem(new ItemData() { tap = tap });
                     }
                     else // Otherwise, it is a piece of furniture.
                     {
                         string tap = trimtext.Substring(trimtext.IndexOf(":")+2);
-                        tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
+                        tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
                         lastItem = currentData.AddItem(new ItemData() { tap = tap, storage = true });
                     }
                 } //end of Home
@@ -615,7 +615,7 @@ namespace InventoryView
                         // remove the - from the beginning if it exists.
                         if (tap.StartsWith("-")) tap = tap.Remove(0, 1);
                         if (tap[tap.Length - 1] == '.') tap = tap.TrimEnd('.');
-                        tap = Regex.Replace(tap, @"^(an|a|some|several)\s", "");
+                        tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
 
                         // The logic below builds a tree of inventory items.
                         if (newlevel == 1) // If the item is in the first level, add to the root item list
