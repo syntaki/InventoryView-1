@@ -378,7 +378,7 @@ namespace InventoryView
 								if (tap.StartsWith(" ")) tap = tap.Remove(0, 1);    
 								if (tap[tap.Length - 1] == '.') tap = tap.TrimEnd('.');
 								tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
-								tap = Regex.Replace(tap, @"\)\s{2}(an?|some|several)\s", ") ");
+								tap = Regex.Replace(tap, @"\)\s{1,3}(an?|some|several)\s", ") ");
 								tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
                         if (newlevel == 1)
                         {
