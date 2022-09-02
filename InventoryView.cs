@@ -86,7 +86,7 @@ namespace InventoryView
                 } //end if Start
                 else if (ScanMode == "Inventory")
                 {
-                    if (text.StartsWith("[Use"))
+                    if (text.Contains("[Use"))
                     {
                         // Skip
                     }
@@ -158,9 +158,9 @@ namespace InventoryView
                             ScanMode = "StandardStart";                            
                             _host.EchoText("Skipping Book Vault.");
                             _host.SendText("vault standard");
-                   }
+                    }
 						  
-                    else if (trimtext == "The script that the vault book is written in is unfamiliar to you.  You are unable to read it." || trimtext == "The vault book is filled with blank pages pre-printed with branch office letterhead.  An advertisement touting the services of Rundmolen Bros. Storage Co. is pasted on the inside cover."  || trimtext == "You currently do not have a vault rented.")
+                    else if (trimtext == "The script that the vault book is written in is unfamiliar to you.  You are unable to read it." || trimtext == "The vault book is filled with blank pages pre-printed with branch office letterhead.  An advertisement touting the services of Rundmolen Bros. Storage Co. is pasted on the inside cover.")
                     {
                         ScanMode = "StandardStart";
                         _host.EchoText("Skipping Book Vault.");
@@ -220,11 +220,11 @@ namespace InventoryView
                 } //end of Vault
                    else if (ScanMode == "StandardStart")
                     {
-                        if (Regex.Match(text, @"^You flag down a local you know works with the Estate Holders' Council and send \w+ to the nearest carousel.").Success || trimtext == "You are already holding that.")
-                        {
-                            _host.EchoText("Scanning Standard Vault.");
-                        }
-                        
+                    if (Regex.Match(text, @"^You flag down a local you know works with the Estate Holders' Council and send \w+ to the nearest carousel.").Success || trimtext == "You are already holding that.")
+                    {
+                        _host.EchoText("Scanning Standard Vault.");
+                    }
+
                     else if (trimtext == "Vault Inventory:") // This text appears at the beginning of the vault list.
                     {
                         ScanMode = "Standard";
@@ -233,12 +233,11 @@ namespace InventoryView
                         level = 1;
                     }
                     // If you don't have access to vault standard, it skips to checking for family vault.
-
-                    else if (trimtext == "You currently do not have access to VAULT STANDARD or VAULT FAMILY.  You will need to use VAULT PAY CONVERT to convert an urchin runner for this purpose." || trimtext == "You currently have no contract with the representative of the local Traders' Guild for this service." || trimtext == "You have no arrangements with the local Traders' Guild representative for urchin runners." || trimtext == "You can't access your vault at this time." || trimtext == "You currently do not have a vault rented.")
+                    if (trimtext == "You currently do not have access to VAULT STANDARD or VAULT FAMILY.  You will need to use VAULT PAY CONVERT to convert an urchin runner for this purpose." || trimtext == "You currently have no contract with the representative of the local Traders' Guild for this service." || trimtext == "You have no arrangements with the local Traders' Guild representative for urchin runners." || trimtext == "You can't access your vault at this time.  Rent is due." || trimtext == "You can't access your vault at this time." || trimtext == "You currently do not have a vault rented.")
                     {
-                            _host.EchoText("Skipping Standard Vault.");
-                            ScanMode = "FamilyStart";
-                            _host.SendText("vault family");
+                         _host.EchoText("Skipping Standard Vault.");
+                         ScanMode = "FamilyStart";
+                        _host.SendText("vault family");
                     }
                 } //end of VaultStandardStart
                 else if (ScanMode == "Standard")
@@ -278,7 +277,7 @@ namespace InventoryView
 								if (tap.StartsWith(" ")) tap = tap.Remove(0, 1);
 								if (tap[tap.Length - 1] == '.') tap = tap.TrimEnd('.');
 								tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
-								tap = Regex.Replace(tap, @"\)\s{1,2}(an?|some|several)\s", ") ");
+								tap = Regex.Replace(tap, @"\)\s{1,4}(an?|some|several)\s", ") ");
                         if (newlevel == 1)
                         {
                             lastItem = currentData.AddItem(new ItemData() { tap = tap, storage = true });
@@ -304,7 +303,7 @@ namespace InventoryView
                 } //end of Standard Vault					 
                    else if (ScanMode == "FamilyStart")
                     {
-                        if (text.StartsWith("Roundtime:"))
+                    if (text.StartsWith("Roundtime:"))
                         {
                             Match match = Regex.Match(trimtext, "^Roundtime:\\s{1,3}(\\d{1,3})\\s{1,3}secs?\\.$");
                             _host.EchoText(string.Format("Pausing {0} seconds for RT.", (object)int.Parse(match.Groups[1].Value)));
@@ -325,7 +324,7 @@ namespace InventoryView
                     }
                     // If you don't have access to family vault, it skips to checking your deed register.
 
-                    else if (trimtext == "You currently do not have access to VAULT STANDARD or VAULT FAMILY.  You will need to use VAULT PAY CONVERT to convert an urchin runner for this purpose." || trimtext == "You have no arrangements with the local Traders' Guild representative for urchin runners." || trimtext == "You currently have no contract with the representative of the local Traders' Guild for this service." || trimtext == "Now may not be the best time for that." || trimtext == "You look around, but cannot find a nearby urchin to send to effect the transfer." || trimtext == "You can't access the family vault at this time." || trimtext == "You can't access your vault at this time." || trimtext == "You currently do not have a vault rented.")
+                    if (trimtext == "You currently do not have access to VAULT STANDARD or VAULT FAMILY.  You will need to use VAULT PAY CONVERT to convert an urchin runner for this purpose." || trimtext == "You have no arrangements with the local Traders' Guild representative for urchin runners." || trimtext == "You currently have no contract with the representative of the local Traders' Guild for this service." || trimtext == "Now may not be the best time for that." || trimtext == "You look around, but cannot find a nearby urchin to send to effect the transfer." || trimtext == "You can't access the family vault at this time." || trimtext == "You can't access your vault at this time." || trimtext.Contains("[You don't have access to advanced vault urchins because you don't have a subscription."))
                     {
                         if (text.StartsWith("Roundtime:"))
                         {
@@ -378,7 +377,7 @@ namespace InventoryView
 								if (tap.StartsWith(" ")) tap = tap.Remove(0, 1);    
 								if (tap[tap.Length - 1] == '.') tap = tap.TrimEnd('.');
 								tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
-								tap = Regex.Replace(tap, @"\)\s{1,3}(an?|some|several)\s", ") ");
+								tap = Regex.Replace(tap, @"\)\s{1,4}(an?|some|several)\s", ") ");
 								tap = Regex.Replace(tap, @"^(an?|some|several)\s", "");
                         if (newlevel == 1)
                         {
