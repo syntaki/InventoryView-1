@@ -45,6 +45,7 @@ namespace InventoryView
         private bool clickSearch;
         private ToolStripMenuItem wikiLookupToolStripMenuItem;
         private ToolStripMenuItem copySelectedToolStripMenuItem;
+        private ImageList imageList1;
         private ListBox listBox = new ListBox();
 
         public bool UseShellExecute { get; private set; }
@@ -61,16 +62,29 @@ namespace InventoryView
             var characters = Class1.characterData.Select(tbl => tbl.name).Distinct().ToList();
             characters.Sort();
 
+            System.Drawing.Image myImage = System.Drawing.Image.FromFile(System.Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + @"\bag.png");
+            imageList1.Images.Add(myImage);
+            myImage = System.Drawing.Image.FromFile(System.Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + @"\bagempty.png");
+            imageList1.Images.Add(myImage);
+            myImage = System.Drawing.Image.FromFile(System.Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + @"\itemunknown.png");
+            imageList1.Images.Add(myImage);
+            myImage = System.Drawing.Image.FromFile(System.Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + @"\armor.png");
+            imageList1.Images.Add(myImage);
+            //System.Drawing.Image myImage = System.Drawing.Image.FromFile(System.Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + @"\image1.png");
+            //imageList1.Images.Add(myImage);
+
             // Recursively load all the items into the tree
             foreach (var character in characters)
             {
                 chkCharacters.Items.Add(character, true);
                 TreeNode charNode = tv.Nodes.Add(character);
+                charNode.Name = charNode.FullPath;
 
                 foreach (var source in Class1.characterData.Where(tbl => tbl.name == character))
                 {
                     TreeNode sourceNode = charNode.Nodes.Add(source.source);
                     sourceNode.ToolTipText = sourceNode.FullPath;
+                    sourceNode.Name = sourceNode.FullPath;
                     PopulateTree(sourceNode, source.items);
                 }
             }
@@ -79,11 +93,13 @@ namespace InventoryView
 
         private void PopulateTree(TreeNode treeNode, List<ItemData> itemList)
         {
+
             foreach (ItemData itemData in itemList)
             {
                 TreeNode treeNode1 = treeNode.Nodes.Add(itemData.tap);
+                treeNode1.ImageIndex = 1;
                 treeNode1.ToolTipText = treeNode1.FullPath;
-                treeNode1.Name = treeNode1.Text;  // I have no idea if this is an acceptable way to use name. Could use tag instead. This is to sync the search results
+                treeNode1.Name = treeNode1.FullPath;  // I have no idea if this is an acceptable way to use name. Could use tag instead. This is to sync the search results
                 if (itemData.items.Count<ItemData>() > 0)
                     PopulateTree(treeNode1, itemData.items);
             }
@@ -123,6 +139,7 @@ namespace InventoryView
                 if (result == true)
                 {
                     node.Expand();
+
                     node.BackColor = Color.Yellow;
                     flag = true;
 
@@ -134,8 +151,45 @@ namespace InventoryView
                     TreeNode matchNode = (TreeNode)node.Clone();
                     matchNode.BackColor = Color.Empty;
                     matchNode.Text = Regex.Replace(matchNode.Text, @"\(\d+\)\s", ""); // Remove Vault ID's
-                    lb1.Nodes.Add(matchNode);
 
+                    // Add the matching item to its root parent (Character)
+                    // get root node
+                    TreeNode rootNode = new TreeNode();
+
+                    if (node.Level == 1)
+                        rootNode = (TreeNode)node.Parent.Clone();
+                    else if (node.Level == 2)
+                        rootNode = (TreeNode)node.Parent.Parent.Clone();
+                    else if (node.Level == 3)
+                        rootNode = (TreeNode)node.Parent.Parent.Parent.Clone();
+                    else if (node.Level == 4)
+                        rootNode = (TreeNode)node.Parent.Parent.Parent.Parent.Clone();
+
+                   //while (rootNode.Parent != null)
+                   // {
+                   //     rootNode = rootNode.Parent; // (TreeNode)rootNode.Parent.Clone();
+                   // }
+
+                    rootNode.Nodes.Clear();
+
+                    if (rootNode != null)
+                    {
+                        // Check if RootNode already in lb1 
+                        if (lb1.Nodes.ContainsKey(rootNode.Name))
+                        {
+                            
+                            // if already contains rootNode, add to existing rootNode in lb1
+                            lb1.Nodes[rootNode.Name].Nodes.Add(matchNode);
+                        }
+                        else
+                        {
+                            // if doesn't contain rootnode add the new rootNode
+                            rootNode.Nodes.Add(matchNode);
+                            lb1.Nodes.Add(rootNode);
+                        }
+                    }
+
+                    lb1.ExpandAll();
                     //nodeList = node.ToString();
                     //if (nodeList.StartsWith("TreeNode: "))
                     //    nodeList = nodeList.Remove(0, 10);
@@ -191,8 +245,8 @@ namespace InventoryView
                 return;
             }
 
-                Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(selectedTreeView.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
-            
+            Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(selectedTreeView.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
+
         }
 
         private void Wiki_Click(object sender, EventArgs e)
@@ -210,6 +264,7 @@ namespace InventoryView
             if (tv.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select an item to lookup.");
+
             }
             else
                 Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
@@ -226,11 +281,11 @@ namespace InventoryView
             //{
             //    selectedTreeView = lb1;
             //}
-        if (lb1.SelectedNode == null)
+            if (lb1.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
-        else            
+            else
                 Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(lb1.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
         }
 
@@ -328,8 +383,8 @@ namespace InventoryView
                 CopyBranchText(lb1.SelectedNode.Nodes, branchText, 1);
             }
 
-                Clipboard.SetText(string.Join("\r\n", branchText.ToArray()));
-            }
+            Clipboard.SetText(string.Join("\r\n", branchText.ToArray()));
+        }
 
         private void CopyBranchText(TreeNodeCollection nodes, List<string> branchText, int level)
         {
@@ -541,6 +596,7 @@ namespace InventoryView
         {
             this.components = new System.ComponentModel.Container();
             this.tv = new System.Windows.Forms.TreeView();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.chkCharacters = new System.Windows.Forms.CheckedListBox();
             this.lblSearch = new System.Windows.Forms.Label();
@@ -574,12 +630,21 @@ namespace InventoryView
             this.tv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.tv.ImageIndex = 0;
+            this.tv.ImageList = this.imageList1;
             this.tv.Location = new System.Drawing.Point(5, 55);
             this.tv.Name = "tv";
+            this.tv.SelectedImageIndex = 0;
             this.tv.ShowNodeToolTips = true;
-            this.tv.Size = new System.Drawing.Size(646, 407);
+            this.tv.Size = new System.Drawing.Size(585, 407);
             this.tv.TabIndex = 10;
             this.tv.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tv_MouseUp);
+            // 
+            // imageList1
+            // 
+            this.imageList1.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.imageList1.ImageSize = new System.Drawing.Size(16, 16);
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // txtSearch
             // 
@@ -756,10 +821,10 @@ namespace InventoryView
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lb1.ContextMenuStrip = this.listBox_Menu;
-            this.lb1.Location = new System.Drawing.Point(657, 55);
+            this.lb1.Location = new System.Drawing.Point(616, 55);
             this.lb1.Name = "lb1";
             this.lb1.ShowNodeToolTips = true;
-            this.lb1.Size = new System.Drawing.Size(667, 411);
+            this.lb1.Size = new System.Drawing.Size(559, 407);
             this.lb1.TabIndex = 10;
             this.lb1.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.lb1_NodeMouseDoubleClick);
             this.lb1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Lb1_MouseUp);
@@ -767,29 +832,22 @@ namespace InventoryView
             // listBox_Menu
             // 
             this.listBox_Menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            //                this.copyTapToolStripMenuItem,
-            //this.exportBranchToFileToolStripMenuItem,
-            //this.wikiLookupToolStripMenuItem});
-
             this.copyToolStripMenuItem,
-            this.wikiToolStripMenuItem
-            //this.copyAllToolStripMenuItem,
-            //this.copySelectedToolStripMenuItem
-            });
+            this.wikiToolStripMenuItem});
             this.listBox_Menu.Name = "listBox_Menu";
-            this.listBox_Menu.Size = new System.Drawing.Size(167, 92);
+            this.listBox_Menu.Size = new System.Drawing.Size(150, 48);
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.copyToolStripMenuItem.Text = "Copy Selected";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.ListBox_Copy_Click);
             // 
             // wikiToolStripMenuItem
             // 
             this.wikiToolStripMenuItem.Name = "wikiToolStripMenuItem";
-            this.wikiToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.wikiToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.wikiToolStripMenuItem.Text = "Wiki Selected";
             this.wikiToolStripMenuItem.Click += new System.EventHandler(this.Listbox_Wiki_Click);
             // 
@@ -875,14 +933,23 @@ namespace InventoryView
 
                 // Add all the nodes in the lb1 search results to a list
                 foreach (TreeNode node in treeMatches)
-                    newMatches.Add(node);
+                    foreach (TreeNode node2 in node.Nodes)
+                         newMatches.Add(node2);
 
                 //get the count of all items matching before or equal to the index
                 count = newMatches.FindAll(y => (y.Name == e.Node.Name) && (y.Index <= e.Node.Index)).Count;
 
                 // Now we have the relative position of the match on the right panel, match with the same relative on the left panel
                 if (currentMatches.Count >= count)
+                {
+                   // int num = (int)MessageBox.Show("Count: " + count + " Node Name: " + e.Node.Name + " Node Index" + e.Node.Index);
+                 
+                    if (count > 0)
                     currentMatch = currentMatches[count - 1];
+                    else
+                        MessageBox.Show("ERROR: Count: " + count + " Node Name: " + e.Node.Name + " Node Index" + e.Node.Index + "newMatchName: " + newMatches[0].Name);
+
+                }
                 else
                 {
                     // couldn't find the match...
