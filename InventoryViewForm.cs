@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace InventoryView
 {
@@ -36,7 +37,7 @@ namespace InventoryView
         private ContextMenuStrip contextMenuStrip1;
         private Button btnExport;
         private ToolTip toolTip = new ToolTip();
-        private ListBox lb1;
+        private TreeView lb1;
         private ContextMenuStrip listBox_Menu;
         private ToolStripMenuItem copyToolStripMenuItem;
         private ToolStripMenuItem wikiToolStripMenuItem;
@@ -92,7 +93,7 @@ namespace InventoryView
             if (!string.IsNullOrEmpty(txtSearch.Text))
             {
                 searchMatches.Clear();
-                lb1.Items.Clear();
+                lb1.Nodes.Clear();
                 currentMatch = (TreeNode)null;
                 tv.CollapseAll();
                 SearchTree(tv.Nodes);
@@ -126,14 +127,21 @@ namespace InventoryView
 
                     searchMatches.Add(node);
 
-                    nodeList = node.ToString();
-                    if (nodeList.StartsWith("TreeNode: "))
-                        nodeList = nodeList.Remove(0, 10);
+                    // Cloning the matched node - we are still using searchMatches List since it contains pointers to the original treeview
+                   // New TreeNodes can't contain the same node, has to be a clone
 
-                    nodeList = Regex.Replace(nodeList, @"\(\d+\)\s", "");
-                    if (nodeList[nodeList.Length - 1] == '.')
-                        nodeList = nodeList.TrimEnd('.');
-                    lb1.Items.Add(nodeList);
+                    TreeNode matchNode = (TreeNode)node.Clone();
+                    matchNode.BackColor = Color.Empty;
+                    lb1.Nodes.Add(matchNode);
+                    
+                    //nodeList = node.ToString();
+                    //if (nodeList.StartsWith("TreeNode: "))
+                    //    nodeList = nodeList.Remove(0, 10);
+
+                    //nodeList = Regex.Replace(nodeList, @"\(\d+\)\s", "");
+                    //if (nodeList[nodeList.Length - 1] == '.')
+                    //    nodeList = nodeList.TrimEnd('.');
+                    //lb1.Nodes.Add(nodeList);
                 }
             }
             return flag;
@@ -185,12 +193,12 @@ namespace InventoryView
 
         private void Listbox_Wiki_Click(object sender, EventArgs e)
         {
-            if (lb1.SelectedItem == null)
+            if (lb1.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
             else
-                Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace((string)lb1.SelectedItem, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(lb1.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -198,7 +206,7 @@ namespace InventoryView
             btnSearch.PerformClick();
             btnFindNext.Visible = btnFindPrev.Visible = btnReset.Visible = clickSearch = false;
             tv.CollapseAll();
-            lb1.Items.Clear();
+            lb1.Nodes.Clear();
             lblFound.Text = "Found: 0";
             resetTree(tv.Nodes);
             searchMatches.Clear();
@@ -276,20 +284,26 @@ namespace InventoryView
 
         private void ListBox_Copy_Click(object sender, EventArgs e)
         {
-            if (lb1.SelectedItem == null)
+           
+            if (lb1.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select an item to copy.");
             }
             else
             {
-                StringBuilder txt = new StringBuilder();
-                foreach (object row in lb1.SelectedItems)
-                {
-                    txt.Append(row.ToString());
-                    txt.AppendLine();
-                }
-                txt.Remove(txt.Length - 1, 1);
-                Clipboard.SetData(System.Windows.Forms.DataFormats.Text, txt.ToString());
+                //TreeView doesn't support multiple selection currently 
+
+                //StringBuilder txt = new StringBuilder();
+                //foreach (object row in lb1.SelectedNodes)
+                //{
+                //    txt.Append(row.ToString());
+                //    txt.AppendLine();
+                //}
+                //txt.Remove(txt.Length - 1, 1);
+                //Clipboard.SetData(System.Windows.Forms.DataFormats.Text, txt.ToString());
+
+                Clipboard.SetData(System.Windows.Forms.DataFormats.Text, lb1.SelectedNode.Text);
+
             }
         }
 
@@ -303,9 +317,9 @@ namespace InventoryView
             {
                 StringBuilder buffer = new StringBuilder();
 
-                for (int i = 0; i < lb1.Items.Count; i++)
+                for (int i = 0; i < lb1.Nodes.Count; i++)
                 {
-                    buffer.Append(lb1.Items[i].ToString());
+                    buffer.Append(lb1.Nodes[i].Text);
                     buffer.Append("\n");
                 }
                 Clipboard.SetText(buffer.ToString());
@@ -314,51 +328,61 @@ namespace InventoryView
 
         public void ListBox_Copy_All_Selected_Click(Object sender, EventArgs e)
         {
-            if (lb1.SelectedItem == null)
+            if (lb1.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select items to copy.");
             }
             else
             {
-                StringBuilder buffer = new StringBuilder();
 
-                for (int i = 0; i < lb1.SelectedItems.Count; i++)
-                {
-                    buffer.Append(lb1.SelectedItems[i].ToString());
-                    buffer.Append("\n");
-                }
-                Clipboard.SetText(buffer.ToString());
+                // TreeView doesn't support multiple item selection out of the box so commenting out for now
+
+                //StringBuilder buffer = new StringBuilder();
+
+                //for (int i = 0; i < lb1.SelectedNodes.Count; i++)
+                //{
+                //    buffer.Append(lb1.SelectedItems[i].ToString());
+                //    buffer.Append("\n");
+                //}
+
+                //  Clipboard.SetText(buffer.ToString());
+
+                Clipboard.SetText(lb1.SelectedNode.Text);
             }
         }
 
         private void Lb1_MouseDown(object sender, MouseEventArgs e)
         {
-            if (Control.ModifierKeys == Keys.Control || (Control.ModifierKeys == Keys.Control || Control.ModifierKeys == Keys.ShiftKey || e.Button == MouseButtons.Left))
-            {
-                lb1.SelectionMode = SelectionMode.MultiExtended;
-            }
-            else if (e.Button == MouseButtons.Left)
-            {
-                lb1.SelectionMode = SelectionMode.One;
-            }
+            // don't think this works with treeview 
+
+        //    if (Control.ModifierKeys == Keys.Control || (Control.ModifierKeys == Keys.Control || Control.ModifierKeys == Keys.ShiftKey || e.Button == MouseButtons.Left))
+        //    {
+        //        lb1.SelectionMode = SelectionMode.MultiExtended;
+        //    }
+        //    else if (e.Button == MouseButtons.Left)
+        //    {
+        //        lb1.SelectionMode = SelectionMode.One;
+        //    }
         }
 
         private void Lb1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button != MouseButtons.Right)
-                return;
+            // don't think works with treeview 
 
-            if (lb1.SelectedItem != null)
-            {
-                if (Control.ModifierKeys == Keys.Control || (Control.ModifierKeys == Keys.Control || Control.ModifierKeys == Keys.ShiftKey || e.Button == MouseButtons.Right))
-                {
-                    lb1.SelectionMode = SelectionMode.MultiExtended;
-                }
-                else if (e.Button == MouseButtons.Right)
-                {
-                    lb1.SelectionMode = SelectionMode.One;
-                }
-            }
+            //if (e.Button != MouseButtons.Right)
+            //    return;
+
+            //if (lb1.SelectedItem != null)
+            //{
+            //    if (Control.ModifierKeys == Keys.Control || (Control.ModifierKeys == Keys.Control || Control.ModifierKeys == Keys.ShiftKey || e.Button == MouseButtons.Right))
+            //    {
+            //        lb1.SelectionMode = SelectionMode.MultiExtended;
+            //    }
+            //    else if (e.Button == MouseButtons.Right)
+            //    {
+            //        lb1.SelectionMode = SelectionMode.One;
+            //    }
+            //}
         }
 
         private void tv_MouseUp(object sender, MouseEventArgs e)
@@ -466,7 +490,7 @@ namespace InventoryView
             this.exportBranchToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.wikiLookupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lb1 = new System.Windows.Forms.ListBox();
+            this.lb1 = new System.Windows.Forms.TreeView();
             this.listBox_Menu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.wikiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -484,7 +508,7 @@ namespace InventoryView
             this.tv.Location = new System.Drawing.Point(5, 55);
             this.tv.Name = "tv";
             this.tv.ShowNodeToolTips = true;
-            this.tv.Size = new System.Drawing.Size(612, 407);
+            this.tv.Size = new System.Drawing.Size(646, 407);
             this.tv.TabIndex = 10;
             this.tv.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tv_MouseUp);
             // 
@@ -499,7 +523,7 @@ namespace InventoryView
             // 
             this.chkCharacters.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkCharacters.FormattingEnabled = true;
-            this.chkCharacters.Location = new System.Drawing.Point(974, 41);
+            this.chkCharacters.Location = new System.Drawing.Point(1241, 21);
             this.chkCharacters.Name = "chkCharacters";
             this.chkCharacters.Size = new System.Drawing.Size(136, 19);
             this.chkCharacters.TabIndex = 9;
@@ -663,12 +687,12 @@ namespace InventoryView
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lb1.ContextMenuStrip = this.listBox_Menu;
-            this.lb1.FormattingEnabled = true;
-            this.lb1.Location = new System.Drawing.Point(624, 55);
+            this.lb1.Location = new System.Drawing.Point(657, 55);
             this.lb1.Name = "lb1";
-            this.lb1.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lb1.Size = new System.Drawing.Size(492, 407);
+            this.lb1.ShowNodeToolTips = true;
+            this.lb1.Size = new System.Drawing.Size(667, 411);
             this.lb1.TabIndex = 10;
+            this.lb1.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.lb1_NodeMouseDoubleClick);
             this.lb1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Lb1_MouseUp);
             // 
             // listBox_Menu
@@ -716,7 +740,7 @@ namespace InventoryView
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(1122, 478);
+            this.ClientSize = new System.Drawing.Size(1426, 478);
             this.Controls.Add(this.lb1);
             this.Controls.Add(this.btnExport);
             this.Controls.Add(this.btnReload);
@@ -751,6 +775,31 @@ namespace InventoryView
             public string Tap { get; set; }
 
             public List<string> Path { get; set; } = new List<string>();
+        }
+
+        private void lb1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            //e.Node.EnsureVisible();
+           currentMatch = searchMatches.Find(x => x.Text == e.Node.Text);
+          //  currentMatch = searchMatches[searchMatches.IndexOf(e.Node)];
+            //searchMatches.
+            //if (currentMatch == null)
+            //{
+            //    currentMatch = searchMatches.First<TreeNode>();
+            //}
+            //else
+            //{
+            //    currentMatch.BackColor = Color.Yellow;
+            //    int index = searchMatches.IndexOf(currentMatch) + 1;
+            //    if (index == searchMatches.Count<TreeNode>())
+            //        index = 0;
+            //    currentMatch = searchMatches[index];
+            //}
+            currentMatch.EnsureVisible();
+            //currentMatch.BackColor = Color.LightBlue;
+            //string message = e.Node.Text + "INDEX" + searchMatches.IndexOf(e.Node).ToString();
+            //MessageBox.Show(message);
+
         }
     }
 }

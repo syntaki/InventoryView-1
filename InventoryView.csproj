@@ -37,7 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Interfaces">
-      <HintPath>..\..\DynamicWindows\DynamicWindows\bin\Debug\Interfaces.dll</HintPath>
+      <HintPath>..\ClassLibraryTest\ClassLibraryTest\Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
