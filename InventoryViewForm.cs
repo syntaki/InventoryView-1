@@ -110,7 +110,7 @@ namespace InventoryView
         private bool SearchTree(TreeNodeCollection nodes)
         {
             bool flag = false;
-            string nodeList;
+            //string nodeList;
             foreach (TreeNode node in nodes)
             {
                 node.BackColor = Color.White;
@@ -783,8 +783,43 @@ namespace InventoryView
         private void lb1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             //e.Node.EnsureVisible();
-           currentMatch = searchMatches.Find(x => x.Name == e.Node.Name);
-          //  currentMatch = searchMatches[searchMatches.IndexOf(e.Node)];
+
+            List<TreeNode> currentMatches = searchMatches.FindAll(x => x.Name == e.Node.Name);
+
+            int count = 0;
+            if (currentMatches.Count == 0) // if (!currentMatches.Any()) is apparently faster..but less readable IMO
+            {
+                currentMatch = searchMatches.First<TreeNode>();
+            }
+            else if (currentMatches.Count == 1)
+            {
+                currentMatch = currentMatches.First<TreeNode>();
+            }
+            else if (currentMatches.Count > 1)
+            {
+
+
+                TreeNodeCollection treeMatches = lb1.Nodes;
+                List<TreeNode> newMatches = new List<TreeNode>();
+
+                // Add all the nodes in the lb1 search results to a list
+                foreach (TreeNode node in treeMatches)
+                    newMatches.Add(node);
+
+                //get the count of all items matching before or equal to the index
+                count = newMatches.FindAll(y => (y.Name == e.Node.Name) && (y.Index <= e.Node.Index)).Count;
+
+                // Now we have the relative position of the match on the right panel, match with the same relative on the left panel
+                if (currentMatches.Count >= count)
+                currentMatch = currentMatches[count-1];
+                else
+                {
+                    // couldn't find the match...
+                }
+            }
+
+
+            //  currentMatch = searchMatches[searchMatches.IndexOf(e.Node)];
             //searchMatches.
             //if (currentMatch == null)
             //{
@@ -798,10 +833,16 @@ namespace InventoryView
             //        index = 0;
             //    currentMatch = searchMatches[index];
             //}
+
+            foreach (TreeNode node in searchMatches)
+                node.BackColor = Color.Yellow;
+
             currentMatch.EnsureVisible();
-            //currentMatch.BackColor = Color.LightBlue;
-            string message = e.Node.Name;
-            MessageBox.Show(message);
+
+            currentMatch.BackColor = Color.LightBlue;
+
+            //string message = count.ToString();
+            //MessageBox.Show(message);
 
         }
     }
