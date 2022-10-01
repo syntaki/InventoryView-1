@@ -83,6 +83,7 @@ namespace InventoryView
             {
                 TreeNode treeNode1 = treeNode.Nodes.Add(itemData.tap);
                 treeNode1.ToolTipText = treeNode1.FullPath;
+                treeNode1.Name = treeNode1.Text;  // I have no idea if this is an acceptable way to use name. Could use tag instead. This is to sync the search results
                 if (itemData.items.Count<ItemData>() > 0)
                     PopulateTree(treeNode1, itemData.items);
             }
@@ -132,12 +133,14 @@ namespace InventoryView
 
                     TreeNode matchNode = (TreeNode)node.Clone();
                     matchNode.BackColor = Color.Empty;
+                    matchNode.Text = Regex.Replace(matchNode.Text, @"\(\d+\)\s", ""); // Remove Vault ID's
                     lb1.Nodes.Add(matchNode);
-                    
+
                     //nodeList = node.ToString();
                     //if (nodeList.StartsWith("TreeNode: "))
                     //    nodeList = nodeList.Remove(0, 10);
 
+                    
                     //nodeList = Regex.Replace(nodeList, @"\(\d+\)\s", "");
                     //if (nodeList[nodeList.Length - 1] == '.')
                     //    nodeList = nodeList.TrimEnd('.');
@@ -780,7 +783,7 @@ namespace InventoryView
         private void lb1_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             //e.Node.EnsureVisible();
-           currentMatch = searchMatches.Find(x => x.Text == e.Node.Text);
+           currentMatch = searchMatches.Find(x => x.Name == e.Node.Name);
           //  currentMatch = searchMatches[searchMatches.IndexOf(e.Node)];
             //searchMatches.
             //if (currentMatch == null)
@@ -797,8 +800,8 @@ namespace InventoryView
             //}
             currentMatch.EnsureVisible();
             //currentMatch.BackColor = Color.LightBlue;
-            //string message = e.Node.Text + "INDEX" + searchMatches.IndexOf(e.Node).ToString();
-            //MessageBox.Show(message);
+            string message = e.Node.Name;
+            MessageBox.Show(message);
 
         }
     }
