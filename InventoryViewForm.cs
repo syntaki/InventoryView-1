@@ -190,6 +190,15 @@ namespace InventoryView
                     }
 
                     lb1.ExpandAll();
+
+                    // collapse for searches that match containers
+                    foreach (TreeNode n in lb1.Nodes)
+                    {
+                        foreach (TreeNode n2 in n.Nodes)
+                        {
+                            n2.Collapse();
+                        }
+                    }
                     //nodeList = node.ToString();
                     //if (nodeList.StartsWith("TreeNode: "))
                     //    nodeList = nodeList.Remove(0, 10);
