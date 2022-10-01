@@ -60,4 +60,7 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /y /d   $(TargetPath) "C:\Genie\GenieClient-All\Plugins"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

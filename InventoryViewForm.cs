@@ -129,7 +129,7 @@ namespace InventoryView
                     searchMatches.Add(node);
 
                     // Cloning the matched node - we are still using searchMatches List since it contains pointers to the original treeview
-                   // New TreeNodes can't contain the same node, has to be a clone
+                    // New TreeNodes can't contain the same node, has to be a clone
 
                     TreeNode matchNode = (TreeNode)node.Clone();
                     matchNode.BackColor = Color.Empty;
@@ -140,7 +140,7 @@ namespace InventoryView
                     //if (nodeList.StartsWith("TreeNode: "))
                     //    nodeList = nodeList.Remove(0, 10);
 
-                    
+
                     //nodeList = Regex.Replace(nodeList, @"\(\d+\)\s", "");
                     //if (nodeList[nodeList.Length - 1] == '.')
                     //    nodeList = nodeList.TrimEnd('.');
@@ -175,17 +175,38 @@ namespace InventoryView
         private void btnCollapse_Click(object sender, EventArgs e) => tv.CollapseAll();
 
         private void btnWiki_Click(object sender, EventArgs e)
-        {                
-            if (tv.SelectedNode == null)
+        {
+            TreeView selectedTreeView = new TreeView();
+
+            if (tv.SelectedNode != null)
+                selectedTreeView = tv;
+            else
+            if (lb1.SelectedNode != null)
+            {
+                selectedTreeView = lb1;
+            }
+            else // no selected treeviews
             {
                 int num = (int)MessageBox.Show("Select an item to lookup.");
+                return;
             }
-            else
-                Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
+
+                Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(selectedTreeView.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
+            
         }
 
         private void Wiki_Click(object sender, EventArgs e)
         {
+            //TreeView selectedTreeView = new TreeView();
+
+            //if (tv.SelectedNode != null)
+            //    selectedTreeView = tv;
+            //else
+            //if (lb1.SelectedNode != null)
+            //{
+            //    selectedTreeView = lb1;
+            //}
+            //else
             if (tv.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select an item to lookup.");
@@ -196,11 +217,20 @@ namespace InventoryView
 
         private void Listbox_Wiki_Click(object sender, EventArgs e)
         {
-            if (lb1.SelectedNode == null)
+            //TreeView selectedTreeView = new TreeView();
+
+            //if (tv.SelectedNode != null)
+            //    selectedTreeView = tv;
+            //else
+            //if (lb1.SelectedNode != null)
+            //{
+            //    selectedTreeView = lb1;
+            //}
+        if (lb1.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select an item to lookup.");
             }
-            else
+        else            
                 Process.Start(new ProcessStartInfo(string.Format("https://elanthipedia.play.net/index.php?search={0}", Regex.Replace(lb1.SelectedNode.Text, @"\(\d+\)\s|\s\(closed\)", ""))) { UseShellExecute = true });
         }
 
@@ -232,6 +262,7 @@ namespace InventoryView
                 currentMatch = searchMatches[index];
             }
             currentMatch.EnsureVisible();
+            tv.SelectedNode = currentMatch;
             currentMatch.BackColor = Color.LightBlue;
         }
 
@@ -250,6 +281,7 @@ namespace InventoryView
                 currentMatch = searchMatches[index];
             }
             currentMatch.EnsureVisible();
+            tv.SelectedNode = currentMatch;
             currentMatch.BackColor = Color.LightBlue;
         }
 
@@ -266,15 +298,38 @@ namespace InventoryView
             BindData();
         }
 
-        private void copyTapToolStripMenuItem_Click(object sender, EventArgs e) => Clipboard.SetText(Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s", ""));
+        private void copyTapToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (tv.SelectedNode != null)
+                Clipboard.SetText(Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s", ""));
+            else
+             if (lb1.SelectedNode != null)
+            {
+                Clipboard.SetText(Regex.Replace(lb1.SelectedNode.Text, @"\(\d+\)\s", ""));
+            }
+        }
+
 
         private void exportBranchToFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             List<string> branchText = new List<string>();
-            branchText.Add(Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s", ""));
-            CopyBranchText(tv.SelectedNode.Nodes, branchText, 1);
-            Clipboard.SetText(string.Join("\r\n", branchText.ToArray()));
-        }
+
+            if (tv.SelectedNode != null)
+            {
+
+                branchText.Add(Regex.Replace(tv.SelectedNode.Text, @"\(\d+\)\s", ""));
+                CopyBranchText(tv.SelectedNode.Nodes, branchText, 1);
+
+            }
+            else
+           if (lb1.SelectedNode != null)
+            {
+                branchText.Add(Regex.Replace(lb1.SelectedNode.Text, @"\(\d+\)\s", ""));
+                CopyBranchText(lb1.SelectedNode.Nodes, branchText, 1);
+            }
+
+                Clipboard.SetText(string.Join("\r\n", branchText.ToArray()));
+            }
 
         private void CopyBranchText(TreeNodeCollection nodes, List<string> branchText, int level)
         {
@@ -287,7 +342,7 @@ namespace InventoryView
 
         private void ListBox_Copy_Click(object sender, EventArgs e)
         {
-           
+
             if (lb1.SelectedNode == null)
             {
                 int num = (int)MessageBox.Show("Select an item to copy.");
@@ -358,22 +413,32 @@ namespace InventoryView
         {
             // don't think this works with treeview 
 
-        //    if (Control.ModifierKeys == Keys.Control || (Control.ModifierKeys == Keys.Control || Control.ModifierKeys == Keys.ShiftKey || e.Button == MouseButtons.Left))
-        //    {
-        //        lb1.SelectionMode = SelectionMode.MultiExtended;
-        //    }
-        //    else if (e.Button == MouseButtons.Left)
-        //    {
-        //        lb1.SelectionMode = SelectionMode.One;
-        //    }
+            //    if (Control.ModifierKeys == Keys.Control || (Control.ModifierKeys == Keys.Control || Control.ModifierKeys == Keys.ShiftKey || e.Button == MouseButtons.Left))
+            //    {
+            //        lb1.SelectionMode = SelectionMode.MultiExtended;
+            //    }
+            //    else if (e.Button == MouseButtons.Left)
+            //    {
+            //        lb1.SelectionMode = SelectionMode.One;
+            //    }
         }
 
         private void Lb1_MouseUp(object sender, MouseEventArgs e)
         {
             // don't think works with treeview 
 
-            //if (e.Button != MouseButtons.Right)
-            //    return;
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            Point point = new Point(e.X, e.Y);
+            TreeNode nodeAt = lb1.GetNodeAt(point);
+            if (nodeAt == null)
+                return;
+            lb1.SelectedNode = nodeAt;
+            tv.SelectedNode = null;
+            // contextMenuStrip1.Show((Control)lb1, point);
+
+            listBox_Menu.Show((Control)lb1, point);
 
             //if (lb1.SelectedItem != null)
             //{
@@ -397,6 +462,7 @@ namespace InventoryView
             if (nodeAt == null)
                 return;
             tv.SelectedNode = nodeAt;
+            lb1.SelectedNode = null;
             contextMenuStrip1.Show((Control)tv, point);
         }
 
@@ -505,8 +571,8 @@ namespace InventoryView
             // 
             // tv
             // 
-            this.tv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.tv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tv.Location = new System.Drawing.Point(5, 55);
             this.tv.Name = "tv";
@@ -686,8 +752,8 @@ namespace InventoryView
             // lb1
             // 
             this.lb1.AllowDrop = true;
-            this.lb1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.lb1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lb1.ContextMenuStrip = this.listBox_Menu;
             this.lb1.Location = new System.Drawing.Point(657, 55);
@@ -701,10 +767,15 @@ namespace InventoryView
             // listBox_Menu
             // 
             this.listBox_Menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            //                this.copyTapToolStripMenuItem,
+            //this.exportBranchToFileToolStripMenuItem,
+            //this.wikiLookupToolStripMenuItem});
+
             this.copyToolStripMenuItem,
-            this.wikiToolStripMenuItem,
-            this.copyAllToolStripMenuItem,
-            this.copySelectedToolStripMenuItem});
+            this.wikiToolStripMenuItem
+            //this.copyAllToolStripMenuItem,
+            //this.copySelectedToolStripMenuItem
+            });
             this.listBox_Menu.Name = "listBox_Menu";
             this.listBox_Menu.Size = new System.Drawing.Size(167, 92);
             // 
@@ -811,7 +882,7 @@ namespace InventoryView
 
                 // Now we have the relative position of the match on the right panel, match with the same relative on the left panel
                 if (currentMatches.Count >= count)
-                currentMatch = currentMatches[count-1];
+                    currentMatch = currentMatches[count - 1];
                 else
                 {
                     // couldn't find the match...
